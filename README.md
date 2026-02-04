@@ -93,8 +93,6 @@ pytest tests/test_library_service.py -v
 - ❌ **Tests parallèles** : Tous modifient la même DB `library.db`
 - ❌ **Scénarios complexes** : Difficile de tester les cas limites
 
-→ **Résultat : 4 tests d'intégration fragiles au lieu de 23 tests robustes**
-
 ---
 
 ## 🌟 Solution refactorisée (branche refactored-hexagonal)
