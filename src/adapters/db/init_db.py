@@ -1,11 +1,11 @@
 """Initialisation de la base de données."""
 
-from database.db_connection import get_connection
+import sqlite3
 
 
-def init_database():
+def init_database(db_path: str = "library.db"):
     """Initialise le schéma de la base de données."""
-    conn = get_connection()
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
     cursor.execute("""
@@ -43,4 +43,3 @@ def init_database():
     
     conn.commit()
     conn.close()
-    print("Base de données initialisée avec succès.")
