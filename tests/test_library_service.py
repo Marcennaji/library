@@ -19,12 +19,12 @@ L'objectif pédagogique est de montrer POURQUOI l'architecture importe.
 import os
 import pytest
 from services.library_service import LibraryService
+from database.init_db import init_database
 
 
-@pytest.fixture(scope="function", autouse=True)
-def clean_db():
+def setup_function():
     """
-    Nettoie la DB avant chaque test.
+    Prépare la DB avant chaque test.
     
     PROBLÈME : On est forcé d'utiliser library.db (hardcodé)
     et on ne peut pas l'isoler entre les tests.
@@ -34,46 +34,17 @@ def clean_db():
         os.remove(db_path)
     
     # Initialiser la DB
-    from database.init_db import init_database
     init_database()
-    
-    yield
-    
-    # Nettoyage après le test
-    if os.path.exists(db_path):
-        os.remove(db_path)
 
 
-@pytest.fixture(scope="function", autouse=True)
-def clean_db():
-    """
-    Nettoie la DB avant chaque test.
-    
-    PROBLÈME : On est forcé d'utiliser library.db (hardcodé)
-    et on ne peut pas l'isoler entre les tests.
-    """
+def teardown_function():
+    """Nettoie la DB après chaque test."""
     db_path = "library.db"
     if os.path.exists(db_path):
         os.remove(db_path)
-    
-    # Initialiser la DB
-    from database.init_db import init_database
-    init_database()
-    
-    yield
-    
-    # Nettoyage après le test
-    if os.path.exists(db_path):
-        os.remove(db_path)
 
 
-@pytest.fixture
-def service():
-    """Fixture pour créer le service."""
-    return LibraryService()
-
-
-def test_create_book(service, capsys):
+def test_create_book(capsys):
     """
     Test de création de livre.
     
@@ -83,13 +54,14 @@ def test_create_book(service, capsys):
     - ✗ L'ID est généré séquentiellement (dépend de l'ordre des tests)
     - ✗ Impossible de mocker la DB (chemin hardcodé)
     """
+    service = LibraryService()
     service.create_book("Le Petit Prince", "Antoine de Saint-Exupéry", "978-2-07-061275-8")
     
     captured = capsys.readouterr()
     assert "créé avec succès" in captured.out  # Fragile : dépend du texte exact
 
 
-def test_create_member(service, capsys):
+def test_create_member(capsys):
     """
     Test de création de membre.
     
@@ -98,13 +70,14 @@ def test_create_member(service, capsys):
     - ✗ print() à capturer
     - ✗ ID imprévisible
     """
+    service = LibraryService()
     service.create_member("Alice Dupont", "alice@example.com")
     
     captured = capsys.readouterr()
     assert "enregistré avec succès" in captured.out  # Fragile : dépend du texte exact
 
 
-def test_borrow_book_integration(service, capsys):
+def test_borrow_book_integration(capsys):
     """
     Test d'emprunt de livre (test d'intégration forcé).
     
@@ -115,6 +88,8 @@ def test_borrow_book_integration(service, capsys):
     - ✗ DB réelle nécessaire
     - ✗ Effets de bord multiples
     """
+    service = LibraryService()
+    
     # Créer un livre
     service.create_book("1984", "George Orwell", "")  # ISBN optionnel mais obligatoire
     capsys.readouterr()
@@ -136,7 +111,7 @@ def test_borrow_book_integration(service, capsys):
     assert "n'est pas disponible" in captured.out
 
 
-def test_return_book_integration(service, capsys):
+def test_return_book_integration(capsys):
     """
     Test de retour de livre.
     
@@ -145,6 +120,8 @@ def test_return_book_integration(service, capsys):
     - ✗ Nécessite de créer livre + membre + emprunt
     - ✗ Dates non contrôlables
     """
+    service = LibraryService()
+    
     # Setup complet nécessaire
     service.create_book("Le Seigneur des Anneaux", "J.R.R. Tolkien", "")
     capsys.readouterr()
