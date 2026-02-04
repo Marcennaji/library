@@ -22,17 +22,15 @@ from application.usecases.return_book import ReturnBookUseCase
 TEST_DB = "test_library.db"
 
 
-@pytest.fixture(autouse=True)
-def setup_teardown():
-    """Setup : créer une DB de test. Teardown : la supprimer."""
-    # Setup
+def setup_function():
+    """Prépare la DB de test avant chaque test."""
     if os.path.exists(TEST_DB):
         os.remove(TEST_DB)
     init_database(TEST_DB)
-    
-    yield
-    
-    # Teardown
+
+
+def teardown_function():
+    """Nettoie la DB de test après chaque test."""
     if os.path.exists(TEST_DB):
         os.remove(TEST_DB)
 
