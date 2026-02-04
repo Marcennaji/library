@@ -1,12 +1,12 @@
 # 📚 Library Management System - Refactoring Challenge
 
-> 🔧 **Exercice de refactoring : De la boule de boue à l'architecture hexagonale**
+> 🔧 **Exercice de refactoring : Du code problématique à l'architecture hexagonale**
 
 ## 🎯 Contexte
 
-Ce projet est une application CLI de gestion de bibliothèque (emprunts de livres) qui **fonctionne** mais qui est structurée comme un **"big ball of mud"** (grosse boule de boue).
+Ce projet est une application CLI de gestion de bibliothèque (emprunts de livres) qui **fonctionne** mais qui présente de nombreux **problèmes architecturaux**.
 
-**Objectif pédagogique :** Diagnostiquer les problèmes architecturaux et proposer un refactoring vers l'architecture hexagonale.
+**Objectif pédagogique :** Diagnostiquer les problèmes, comprendre leurs impacts, et apprendre à refactoriser vers l'architecture hexagonale.
 
 ---
 
@@ -26,45 +26,30 @@ L'application permet de :
 
 ---
 
-## 🏗️ Architecture (supposément hexagonale)
+## 🏗️ Architecture actuelle (branche main)
 
 ```
-src/
-├── domain/              # Entités métier
-│   ├── book.py
-│   ├── member.py
-│   └── loan.py
-├── ports/               # Interfaces
-│   ├── book_repository.py
-│   └── clock.py
-├── application/         # Cas d'usage
-│   └── usecases/
-│       └── borrow_book.py
-├── adapters/            # Implémentations techniques
-│   ├── api/
-│   │   └── book_router.py
-│   └── db/
-│       └── book_repository_in_memory.py
-└── main.py              # Composition root
+models/              # Entités mélangées avec persistance
+├── book.py
+├── member.py
+└── loan.py
+services/            # Service "god class" tout-en-un
+├── library_service.py
+└── validation.py
+database/            # Accès direct SQLite
+├── db_connection.py
+└── init_db.py
+utils/               # Utilitaires non abstraits
+├── date_utils.py
+└── id_generator.py
+main.py              # CLI avec instanciation directe
 ```
 
----
-
-## 🔍 Mission : Trouvez les 10 violations !
-
-Ce code viole 10 principes d'architecture hexagonale. À vous de les identifier !
-
-**Indice sur la répartition :**
-- Domain (domain/) : 6 violations
-- Application (application/) : 2 violations
-- Adaptateurs (adapters/) : 2 violations
-
-**Principes à vérifier :**
-1. **Indépendance du domaine** : Aucune dépendance externe (framework, DB, etc.)
-2. **Inversion de dépendances** : Use cases dépendent de ports (interfaces), pas d'adaptateurs
-3. **Injection de dépendances** : Pas d'instanciation directe dans les constructeurs
-4. **Séparation des responsabilités** : Le domaine ne gère pas la persistance
-5. **Respect des couches** : Les adaptateurs n'exécutent pas de logique métier
+**⚠️ Problèmes à identifier :**
+- Couplage fort entre domaine et infrastructure
+- Testabilité compromise
+- Responsabilités mal séparées
+- Pas d'injection de dépendances
 
 ---
 
@@ -72,21 +57,27 @@ Ce code viole 10 principes d'architecture hexagonale. À vous de les identifier 
 
 ```bash
 # Cloner le repo
-git clone https://github.com/[enseignant]/library-violations-pedagogiques
-cd library-violations-pedagogiques
+git clone https://github.com/Marcennaji/library.git
+cd library
 
-# Vous êtes sur la branche 'main' (big ball of mud)
+# Installer les dépendances
+pip install -r requirements.txt
+
+# Vous êtes sur la branche 'main' (code problématique)
 ```
 
 ## 🧪 Lancer l'application (branche main)
 
 ```bash
-python library.py
+python main.py
 ```
 
-Vous verrez un menu CLI pour gérer la bibliothèque.
+Vous verrez un menu CLI pour gérer la bibliothèque. Testez les fonctionnalités :
+- Créer des livres (IDs courts : B1, B2, ...)
+- Créer des membres (IDs courts : M1, M2, ...)
+- Emprunter/retourner des livres
 
-**Note :** L'application fonctionne, mais le code est ingérable !
+**Note :** L'application fonctionne, mais analysez le code pour identifier les problèmes !
 
 ---
 
@@ -99,11 +90,23 @@ git checkout refactored-hexagonal
 ```
 
 Cette branche contient :
-- Structure hexagonale complète
-- Domain pur (aucune dépendance externe)
-- Ports & Adapters bien séparés
-- Use cases testables
-- Code maintenable et évolutif
+- ✅ **Architecture hexagonale complète** (domain/ports/application/adapters)
+- ✅ **Domain pur** (aucune dépendance externe)
+- ✅ **Injection de dépendances** (composition root dans main.py)
+- ✅ **23 tests qui passent** (fixtures, unit tests, integration tests)
+- ✅ **Testabilité démontrée** avec test doubles (InMemoryRepositories, FixedClock, FixedIDGenerator)
+- ✅ **Documentation détaillée** (ANALYSE_REFACTORING.md)
+
+**Lancer les tests :**
+```bash
+pytest tests/ -v
+```
+
+**Comparer les structures :**
+```bash
+# Voir les différences de fichiers entre les branches
+git diff main refactored-hexagonal --name-status
+```
 
 **Utilisez-la pour comprendre le chemin de transformation !**
 
@@ -111,16 +114,42 @@ Cette branche contient :
 
 ## 📝 Utilisation pédagogique
 
-1. **Analyse individuelle** (15 min) : Parcourir le code et identifier les violations
-2. **Correction collective** (30 min) : Discussion et correction guidée
-3. **Transfert** (10 min) : Vérifier son propre projet ticketing
+### 📋 Documents fournis :
+- **FICHE_REFACTORING.md** : Feuille de route pour l'étudiant (diagnostic + planification)
+- **GUIDE_ENSEIGNANT.md** : Correction et déroulé de séance (55min)
+- **ANALYSE_REFACTORING.md** : Comparaison détaillée avant/après (disponible sur branche refactored-hexagonal)
+
+### 🎓 Déroulement suggéré (55 min) :
+1. **Phase 1 - Diagnostic** (20 min) : Analyser le code, identifier les problèmes
+2. **Phase 2 - Correction collective** (25 min) : Comparer avec la branche refactored-hexagonal
+3. **Phase 3 - Synthèse** (10 min) : Principes à retenir, application à son propre projet
 
 ---
 
 ## ⚠️ Note importante
 
-**Ne comparez PAS ce code avec votre projet ticketing !** 
+**Ne comparez PAS mécaniquement ce code avec votre projet ticketing !** 
 
-L'objectif est d'identifier les violations en appliquant les **principes architecturaux**, pas en comparant mécaniquement deux projets.
+L'objectif est d'identifier les problèmes en appliquant les **principes architecturaux** :
+- ✅ Le domaine est-il pur (sans dépendances externes) ?
+- ✅ Les responsabilités sont-elles bien séparées ?
+- ✅ Le code est-il testable ?
+- ✅ Les dépendances sont-elles injectées ?
 
-Les mêmes principes s'appliquent à TOUS les domaines métier.
+Les mêmes principes s'appliquent à TOUS les domaines métier (bibliothèque, ticketing, e-commerce, etc.).
+
+---
+
+## 📊 Statistiques
+
+**Branche main (code problématique) :**
+- 14 fichiers Python
+- Couplage fort : models appellent directement la DB
+- 0 tests (code non testable)
+
+**Branche refactored-hexagonal (architecture propre) :**
+- 30+ fichiers Python (mieux organisés)
+- Couplage faible : injection de dépendances
+- 23 tests qui passent (testabilité démontrée)
+
+**Le bénéfice de l'architecture hexagonale : la testabilité !** 🎯
