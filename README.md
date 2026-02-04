@@ -72,6 +72,29 @@ Vous verrez un menu CLI pour gérer la bibliothèque. Testez les fonctionnalité
 
 **Note :** L'application fonctionne, mais analysez le code pour identifier les problèmes !
 
+### 🧪 Tests sur le code problématique
+
+Oui, même le code problématique a quelques tests ! Lancez-les :
+
+```bash
+pytest tests/test_library_service.py -v
+```
+
+**❓ Questions pour réflexion :**
+- Que pensez-vous de ces tests ?
+- Sont-ils faciles à écrire et à maintenir ?
+- Pourquoi y a-t-il autant de warnings ?
+- Pourquoi tous les tests nécessitent-ils une base de données réelle ?
+
+**⚠️ Ce que cette architecture rend difficile/impossible à tester :**
+- ❌ **Tests unitaires** : Impossible d'isoler la logique métier de la DB
+- ❌ **Dates contrôlables** : `datetime.now()` partout → scénarios temporels impossibles
+- ❌ **Tests rapides** : Tous les tests font de l'I/O disque (lent)
+- ❌ **Tests parallèles** : Tous modifient la même DB `library.db`
+- ❌ **Scénarios complexes** : Difficile de tester les cas limites
+
+→ **Résultat : 4 tests d'intégration fragiles au lieu de 23 tests robustes**
+
 ---
 
 ## 🌟 Solution refactorisée (branche refactored-hexagonal)
@@ -86,18 +109,24 @@ Cette branche contient :
 - ✅ **Architecture hexagonale complète** (domain/ports/application/adapters)
 - ✅ **Domain pur** (aucune dépendance externe)
 - ✅ **Injection de dépendances** (composition root dans main.py)
-- ✅ **23 tests qui passent** (fixtures, unit tests, integration tests)
+- ✅ **23 tests qui passent** (21 unitaires + 2 intégration)
 - ✅ **Testabilité démontrée** avec test doubles (InMemoryRepositories, FixedClock, FixedIDGenerator)
+- ✅ **Documentation détaillée** (ANALYSE_REFACTORING.md + tests/COMPARAISON_TESTS.md)
 
 **Lancer les tests :**
 ```bash
 pytest tests/ -v
 ```
 
-**Comparer les structures :**
+**Comparer avec les tests de la branche main :**
 ```bash
-# Voir les différences de fichiers entre les branches
-git diff main refactored-hexagonal --name-status
+# Sur main : 4 tests lents avec DB
+git checkout main
+pytest tests/test_library_service.py -v
+
+# Sur refactored : 23 tests rapides, 21 sans DB
+git checkout refactored-hexagonal
+pytest tests/ -v
 ```
 
 **Utilisez-la pour comprendre le chemin de transformation !**
