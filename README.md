@@ -29,28 +29,21 @@ L'application permet de :
 ## 🏗️ Architecture actuelle (branche main)
 
 ```
-models/              # Entités mélangées avec persistance
+models/              
 ├── book.py
 ├── member.py
 └── loan.py
-services/            # Service "god class" tout-en-un
+services/            
 ├── library_service.py
 └── validation.py
-database/            # Accès direct SQLite
+database/            
 ├── db_connection.py
 └── init_db.py
-utils/               # Utilitaires non abstraits
+utils/               
 ├── date_utils.py
 └── id_generator.py
-main.py              # CLI avec instanciation directe
+main.py              
 ```
-
-**⚠️ Problèmes à identifier :**
-- Couplage fort entre domaine et infrastructure
-- Testabilité compromise
-- Responsabilités mal séparées
-- Pas d'injection de dépendances
-
 ---
 
 ## 🚀 Installation
@@ -73,8 +66,8 @@ python main.py
 ```
 
 Vous verrez un menu CLI pour gérer la bibliothèque. Testez les fonctionnalités :
-- Créer des livres (IDs courts : B1, B2, ...)
-- Créer des membres (IDs courts : M1, M2, ...)
+- Créer des livres 
+- Créer des membres 
 - Emprunter/retourner des livres
 
 **Note :** L'application fonctionne, mais analysez le code pour identifier les problèmes !
@@ -95,7 +88,6 @@ Cette branche contient :
 - ✅ **Injection de dépendances** (composition root dans main.py)
 - ✅ **23 tests qui passent** (fixtures, unit tests, integration tests)
 - ✅ **Testabilité démontrée** avec test doubles (InMemoryRepositories, FixedClock, FixedIDGenerator)
-- ✅ **Documentation détaillée** (ANALYSE_REFACTORING.md)
 
 **Lancer les tests :**
 ```bash
@@ -112,24 +104,6 @@ git diff main refactored-hexagonal --name-status
 
 ---
 
-## 📝 Utilisation pédagogique
-
-### 📋 Documents fournis :
-- **FICHE_REFACTORING.md** : Feuille de route pour l'étudiant (diagnostic + planification)
-- **GUIDE_ENSEIGNANT.md** : Correction et déroulé de séance (55min)
-- **ANALYSE_REFACTORING.md** : Comparaison détaillée avant/après (disponible sur branche refactored-hexagonal)
-
-### 🎓 Déroulement suggéré (55 min) :
-1. **Phase 1 - Diagnostic** (20 min) : Analyser le code, identifier les problèmes
-2. **Phase 2 - Correction collective** (25 min) : Comparer avec la branche refactored-hexagonal
-3. **Phase 3 - Synthèse** (10 min) : Principes à retenir, application à son propre projet
-
----
-
-## ⚠️ Note importante
-
-**Ne comparez PAS mécaniquement ce code avec votre projet ticketing !** 
-
 L'objectif est d'identifier les problèmes en appliquant les **principes architecturaux** :
 - ✅ Le domaine est-il pur (sans dépendances externes) ?
 - ✅ Les responsabilités sont-elles bien séparées ?
@@ -139,17 +113,3 @@ L'objectif est d'identifier les problèmes en appliquant les **principes archite
 Les mêmes principes s'appliquent à TOUS les domaines métier (bibliothèque, ticketing, e-commerce, etc.).
 
 ---
-
-## 📊 Statistiques
-
-**Branche main (code problématique) :**
-- 14 fichiers Python
-- Couplage fort : models appellent directement la DB
-- 0 tests (code non testable)
-
-**Branche refactored-hexagonal (architecture propre) :**
-- 30+ fichiers Python (mieux organisés)
-- Couplage faible : injection de dépendances
-- 23 tests qui passent (testabilité démontrée)
-
-**Le bénéfice de l'architecture hexagonale : la testabilité !** 🎯
