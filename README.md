@@ -1,4 +1,4 @@
-# 📚 Library Management System - Refactoring Challenge
+# 📚 Library Management System - Exercice d'analyse architecturale et de refactoring
 
 > 🔧 **Exercice de refactoring : Du code problématique à l'architecture hexagonale**
 
@@ -6,7 +6,7 @@
 
 Ce projet est une application CLI de gestion de bibliothèque (emprunts de livres) qui **fonctionne** mais qui présente de nombreux **problèmes architecturaux**.
 
-**Objectif pédagogique :** Diagnostiquer les problèmes, comprendre leurs impacts, et apprendre à refactoriser vers l'architecture hexagonale.
+**Objectif pédagogique :** Diagnostiquer les problèmes, comprendre leurs impacts, et savoir comment refactoriser vers l'architecture hexagonale.
 
 ---
 
@@ -74,7 +74,7 @@ Vous verrez un menu CLI pour gérer la bibliothèque. Testez les fonctionnalité
 
 ### 🧪 Tests sur le code problématique
 
-Oui, même le code problématique a quelques tests ! Lancez-les :
+Le code problématique a quelques tests. Lancez-les :
 
 ```bash
 pytest tests/test_library_service.py -v
