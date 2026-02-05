@@ -16,13 +16,13 @@ Application CLI de gestion de bibliothèque (emprunts de livres) qui **fonctionn
 # Cloner et installer
 git clone https://github.com/Marcennaji/library.git
 cd library
-pip install -r requirements.txt
+
+# Lancer les tests
+python -m pytest tests/ -v
 
 # Lancer l'application
 python main.py
 
-# Lancer les tests
-pytest tests/test_library_service.py -v
 ```
 
 **Fonctionnalités** : Créer livres/membres, emprunter/retourner des livres, consulter disponibilités.
@@ -33,18 +33,54 @@ pytest tests/test_library_service.py -v
 
 ### 📋 Documents d'analyse
 
-- **[VIOLATION_SRP.md](VIOLATION_SRP.md)** : Analyse de `borrow_book()` - 9 responsabilités mélangées → impossible à tester unitairement
+- **[VIOLATION_SRP.md](VIOLATION_SRP.md)** : Analyse d'un des problèmes majeurs - la méthode `borrow_book()` contient 9 responsabilités mélangées → impossible à tester unitairement
 
-- **[GUIDE_REFACTORING.md](GUIDE_REFACTORING.md)** : Méthode de refactoring progressif (priorisation, petites étapes, tests continus)
+- **[GUIDE_REFACTORING.md](GUIDE_REFACTORING.md)** : Méthode de refactoring progressif pour corriger ces problèmes (priorisation, petites étapes, tests continus)
 
 ### 🧪 Tests actuels
 
 ```bash
-pytest tests/test_library_service.py -v
-# → 4 tests d'intégration, 11 warnings, nécessitent tous SQLite + filesystem
+python -m pytest tests/ -v
+# → 4 tests d'intégration, nécessitent tous SQLite + filesystem
 ```
 
-**Questions** : Pourquoi tant de warnings ? Pourquoi impossible de tester sans DB ? Que se passe-t-il si on veut tester juste la logique métier ?
+<details>
+<summary><b>❓ Pourquoi seulement 4 tests ?</b></summary>
+
+Avec cette architecture, il est très difficile d'écrire plus de tests. Chaque test nécessite :
+- Une vraie base de données SQLite
+- Le système de fichiers (pour les logs/)
+- La gestion des dates système
+- La capture de `print()` avec `capsys`
+
+**Conséquence** : Les tests sont lents (~500ms pour 4 tests), complexes à écrire, et testent tout en même temps (logique métier + infrastructure).
+
+**Comparaison** : La branche `refactored-hexagonal` contient 23 tests dont 21 unitaires qui s'exécutent en <2s au total.
+</details>
+
+<details>
+<summary><b>❓ Pourquoi impossible de tester sans DB ?</b></summary>
+
+Les entités (`Book`, `Member`, `Loan`) contiennent des méthodes `.save()` qui font des requêtes SQL directes. Le service `LibraryService` utilise `get_connection()` qui retourne toujours une connexion vers `library.db`.
+
+**Conséquence** : Impossible de tester la logique métier isolément - chaque test doit créer/nettoyer une vraie base de données.
+
+**Solution** : Séparer les entités (domaine pur) des repositories (persistance), puis injecter les repositories.
+</details>
+
+<details>
+<summary><b>❓ Que se passe-t-il si on veut tester juste la logique métier ?</b></summary>
+
+C'est impossible actuellement. La logique métier est mélangée avec :
+- Base de données (SQL)
+- Système de fichiers (logs/)
+- Date système (`datetime.now()`)
+- Affichage console (`print()`)
+
+Pour tester un comportement métier simple (ex: "un livre emprunté n'est plus disponible"), il faut gérer toutes ces dépendances.
+
+**Résultat** : Tests lents, fragiles (dépendent de l'état du filesystem/DB), difficiles à maintenir.
+</details>
 
 ---
 
@@ -54,74 +90,49 @@ La branche `refactored-hexagonal` montre **UN exemple** d'amélioration (pas LA 
 
 ```bash
 git checkout refactored-hexagonal
-pytest tests/ -v
-# → 23 tests (21 unitaires + 2 intégration), pas de warnings
+python -m pytest tests/ -v
+# → 23 tests (21 unitaires + 2 intégration) en <2s
 ```
 
 **Différences clés** :
 - Domain pur (sans dépendances infrastructure)
 - Injection de dépendances
 - Tests rapides avec test doubles (InMemoryRepositories, FixedClock)
-- Documentation : ANALYSE_REFACTORING.md, tests/COMPARAISON_TESTS.md
+- Documentation : ANALYSE_REFACTORING.md, tests/README.md
 
-```bash
-# Comparer les structures
-git diff main refactored-hexagonal --stat
-```
+**Structure refactorisée** : `src/domain/`, `src/ports/`, `src/application/usecases/`, `src/adapters/`
 
 ---
 
-## 🎓 Utilisation pédagogique
+## � Démarche proposée
 
-### 📖 Documents à utiliser
+### ⏱️ Pendant la séance (50 min)
 
-**Pendant la séance (1h encadrée)** :
-- Ce README pour comprendre le contexte
-- [VIOLATION_SRP.md](VIOLATION_SRP.md) pour analyser le problème concret
-- Branche `refactored-hexagonal` pour voir une solution possible
-
-**Après la séance (travail autonome)** :
-- [GUIDE_REFACTORING.md](GUIDE_REFACTORING.md) pour refactoriser progressivement (avec aide de l'IA)
-
-### ⏱️ Déroulement de la séance (60 min)
-
-**Phase 1 : Diagnostic** (25 min)
-1. **Expérimentation** (10 min) : Tentez d'écrire un test unitaire pour `borrow_book()` → constatez la difficulité
-2. **Analyse du code** (10 min) : Lire `services/library_service.py` et identifier les problèmes
-3. **Lecture** (5 min) : [VIOLATION_SRP.md](VIOLATION_SRP.md) - les 9 responsabilités mélangées
+**Phase 1 : Diagnostic** (30 min)
+1. **Expérimentation** (15 min) : Tentez d'écrire un test unitaire pour `borrow_book()` → constatez la difficulté
+2. **Analyse du code** (10 min) : Lisez `services/library_service.py` et identifiez les problèmes
+3. **Approfondissement** (5 min) : Consultez [VIOLATION_SRP.md](VIOLATION_SRP.md) pour l'analyse détaillée des 9 responsabilités mélangées
 
 **Phase 2 : Comparaison** (20 min)
-4. **Explorer la solution** (15 min) : Basculer sur `refactored-hexagonal`, lancer les 23 tests, comprendre la structure
-5. **Discussion** (5 min) : Qu'est-ce qui a changé ? Pourquoi 23 tests au lieu de 4 ?
+4. **Explorer une solution possible** (20 min) : Basculez sur `refactored-hexagonal`, lancez les 23 tests, comprenez la structure (domain/, ports/, adapters/), comparez avec main
 
-**Phase 3 : Application** (15 min)
-6. **Lien avec votre projet** (10 min) : Identifier des problèmes similaires dans votre code
-7. **Plan d'action** (5 min) : Définir les premiers refactorings à faire
+**💭 Réflexion individuelle** : Pourquoi avez-vous été guidés vers une architecture hexagonale dès le début sur votre projet ticketing ? Que se serait-il passé si vous aviez commencé comme ce code ?
 
-### 🏠 Travail en autonomie (après la séance)
+### 🏠 Pour aller plus loin (travail en autonomie)
 
 Pour refactoriser progressivement ce projet (ou le vôtre) :
-1. Suivez le [GUIDE_REFACTORING.md](GUIDE_REFACTORING.md) en commençant par la Phase 0
-2. Utilisez l'IA pour vous aider (voir section dédiée dans le guide)
-3. Avancez par petites étapes, testez en continu, commitez fréquemment
-4. N'essayez pas de tout faire d'un coup : c'est un travail itératif
 
-**Principes à retenir** :
-- Testabilité = indicateur de qualité architecturale
-- SRP = une responsabilité par classe
-- Refactoring progressif = petits pas + tests
-- Architecture hexagonale = domaine isolé
-- L'IA peut aider mais doit être utilisée intelligemment
+1. **Suivez le guide méthodologique** : [GUIDE_REFACTORING.md](GUIDE_REFACTORING.md) présente une approche progressive en 3 phases (testable → séparé → inversé)
+2. **Utilisez l'IA comme assistant** : Le guide contient des conseils et exemples de prompts pour utiliser efficacement l'IA
+3. **Avancez par petits pas** : Testez en continu, commitez fréquemment
+4. **Soyez patient** : C'est un travail itératif, n'essayez pas de tout faire d'un coup
 
----
+### 💡 Principes clés à retenir
 
-## 📊 En chiffres
-
-| Métrique | main | refactored |
-|----------|------|------------|
-| Fichiers Python | 14 | 30+ |
-| Tests | 4 (intégration) | 23 (21 unit + 2 integ) |
-| `borrow_book()` | 9 responsabilités | Use case avec 1 responsabilité |
-| Testable sans DB ? | ❌ | ✅ |
+- **Testabilité = indicateur de qualité architecturale** : Un code difficile à tester est un code mal structuré
+- **SRP** ([Single Responsibility Principle](../architecture-logicielle-BUT2-ressources/cm/annexe_04_principes_SOLID.md#-s---single-responsibility-principle-srp)) : Une responsabilité par classe/méthode
+- **Refactoring progressif** : Petits pas + tests + commits fréquents
+- **Architecture hexagonale** : Isoler le domaine métier des détails techniques
+- **L'IA comme outil** : Puissant pour accélérer, mais nécessite compréhension et validation
 
 ---

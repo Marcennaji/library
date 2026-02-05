@@ -5,6 +5,15 @@ from datetime import datetime, timedelta
 from database.db_connection import get_connection
 
 
+def _parse_datetime(value):
+    """Convertit une string ISO en datetime."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return datetime.fromisoformat(value)
+    return value
+
+
 class Loan:
     """Représente un emprunt de livre."""
     
@@ -34,7 +43,10 @@ class Loan:
         cursor.execute("""
             INSERT OR REPLACE INTO loans (id, book_id, member_id, borrowed_at, due_date, returned_at)
             VALUES (?, ?, ?, ?, ?, ?)
-        """, (self.id, self.book_id, self.member_id, self.borrowed_at, self.due_date, self.returned_at))
+        """, (self.id, self.book_id, self.member_id, 
+               self.borrowed_at.isoformat(), 
+               self.due_date.isoformat(), 
+               self.returned_at.isoformat() if self.returned_at else None))
         
         conn.commit()
         conn.close()
@@ -53,5 +65,8 @@ class Loan:
         conn.close()
         
         if row:
-            return Loan(row[0], row[1], row[2], row[3], row[4], row[5])
+            return Loan(row[0], row[1], row[2], 
+                       _parse_datetime(row[3]), 
+                       _parse_datetime(row[4]), 
+                       _parse_datetime(row[5]))
         return None

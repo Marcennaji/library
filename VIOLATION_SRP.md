@@ -1,8 +1,10 @@
-# 🚨 Violation Massive du SRP : La Méthode `borrow_book()`
+# 🚨 Violation Massive du SRP (Single Responsibility Principle): La méthode `borrow_book()`
 
-## Le Problème
+> 📚 Consultez l'[Annexe SOLID](../architecture-logicielle-BUT2-ressources/cm/annexe_04_principes_SOLID.md) pour comprendre en détail le principe SRP et les autres principes SOLID.
 
-La méthode `borrow_book()` dans [services/library_service.py](services/library_service.py) viole **massivement** le **Single Responsibility Principle (SRP)**.
+## Le problème
+
+La méthode `borrow_book()` dans [services/library_service.py](services/library_service.py) viole **massivement** le SRP.
 
 ### ❌ Responsabilités mélangées (9 au total !)
 

@@ -3,6 +3,7 @@
 > **Objectif** : Transformer progressivement ce code vers une architecture maintenable, **sans tout casser**.
 >
 > 📚 **Quand utiliser ce guide ?** Après la séance encadrée (voir [README.md](README.md)), pour refactoriser en autonomie avec l'aide de l'IA.
+>
 
 ## 🎯 Principe : Refactoring Incrémental
 
@@ -257,8 +258,8 @@ Créer des ports/adapters n'est **pas systématique**. Posez-vous ces questions 
 
 #### Étape 3.1 : Créer les interfaces (ports)
 
-**Principe du Dependency Inversion Principle (DIP) :**
 Les use cases (logique métier) doivent dépendre d'abstractions, pas d'implémentations concrètes.
+Voir l'[Annexe SOLID](../architecture-logicielle-BUT2-ressources/cm/annexe_04_principes_SOLID.md#-d---dependency-inversion-principle-dip) pour une explication détaillée du DIP (Dependency Inversion Principle).
 
 **Comment procéder :**
 1. Créer un dossier `ports/` pour les interfaces

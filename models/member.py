@@ -5,6 +5,15 @@ from datetime import datetime
 from database.db_connection import get_connection
 
 
+def _parse_datetime(value):
+    """Convertit une string ISO en datetime."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return datetime.fromisoformat(value)
+    return value
+
+
 class Member:
     """Représente un membre de la bibliothèque."""
     
@@ -28,7 +37,7 @@ class Member:
         cursor.execute("""
             INSERT OR REPLACE INTO members (id, name, email, registered_at)
             VALUES (?, ?, ?, ?)
-        """, (self.id, self.name, self.email, self.registered_at))
+        """, (self.id, self.name, self.email, self.registered_at.isoformat()))
         
         conn.commit()
         conn.close()
@@ -44,5 +53,5 @@ class Member:
         conn.close()
         
         if row:
-            return Member(row[0], row[1], row[2], row[3])
+            return Member(row[0], row[1], row[2], _parse_datetime(row[3]))
         return None

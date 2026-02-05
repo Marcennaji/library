@@ -5,6 +5,15 @@ from datetime import datetime
 from database.db_connection import get_connection
 
 
+def _parse_datetime(value):
+    """Convertit une string ISO en datetime."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return datetime.fromisoformat(value)
+    return value
+
+
 class Book:
     """Représente un livre dans la bibliothèque."""
     
@@ -44,7 +53,7 @@ class Book:
         cursor.execute("""
             INSERT OR REPLACE INTO books (id, title, author, isbn, status, registered_at)
             VALUES (?, ?, ?, ?, ?, ?)
-        """, (self.id, self.title, self.author, self.isbn, self.status, self.registered_at))
+        """, (self.id, self.title, self.author, self.isbn, self.status, self.registered_at.isoformat()))
         
         conn.commit()
         conn.close()
@@ -60,7 +69,7 @@ class Book:
         conn.close()
         
         if row:
-            return Book(row[0], row[1], row[2], row[3], row[4], row[5])
+            return Book(row[0], row[1], row[2], row[3], row[4], _parse_datetime(row[5]))
         return None
     
     @staticmethod
@@ -73,7 +82,7 @@ class Book:
         rows = cursor.fetchall()
         conn.close()
         
-        return [Book(r[0], r[1], r[2], r[3], r[4], r[5]) for r in rows]
+        return [Book(row[0], row[1], row[2], row[3], row[4], _parse_datetime(row[5])) for row in rows]
     
     @staticmethod
     def list_available():
@@ -85,4 +94,4 @@ class Book:
         rows = cursor.fetchall()
         conn.close()
         
-        return [Book(r[0], r[1], r[2], r[3], r[4], r[5]) for r in rows]
+        return [Book(r[0], r[1], r[2], r[3], r[4], _parse_datetime(r[5])) for r in rows]
