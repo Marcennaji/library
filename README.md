@@ -1,8 +1,8 @@
-# 📚 Library Management System - Exercice de Diagnostic Architectural
+# Library Management System - Exercice de Diagnostic Architectural
 
-> 🔍 **Un code qui fonctionne… mais qui cache de vrais problèmes : sauras-tu les identifier ?**
+> **Un code qui fonctionne… mais qui cache de vrais problèmes : sauras-tu les identifier ?**
 
-## 🎯 Objectif
+## Objectif
 
 Application CLI de gestion de bibliothèque (emprunts de livres) qui **fonctionne** mais présente des **problèmes architecturaux majeurs**.
 
@@ -10,7 +10,7 @@ Application CLI de gestion de bibliothèque (emprunts de livres) qui **fonctionn
 
 ---
 
-## 🚀 Démarrage rapide
+## Démarrage rapide
 
 ```bash
 # Cloner et installer
@@ -30,7 +30,7 @@ python main.py
 
 ---
 
-## 🔍 Aperçu du code
+## Aperçu du code
 
 ```bash
 python -m pytest tests/ -v
@@ -39,7 +39,7 @@ python -m pytest tests/ -v
 
 ---
 
-## 🌟 Exemple d'architecture améliorée
+## Exemple d'architecture améliorée
 
 La branche `refactored-hexagonal` montre **UN exemple** d'amélioration (pas LA seule solution) :
 
@@ -60,9 +60,9 @@ python -m pytest tests/ -v
 
 ---
 
-## 📋 Démarche à suivre
+## Démarche à suivre
 
-### ⏱️ Pendant la séance (1h)
+### Pendant la séance (1h)
 
 **Phase 1 : Diagnostic** (30 min)
 1. **Expérimentation** (10 min) : Tentez d'écrire un test unitaire pour `borrow_book()` — sans DB réelle, sans filesystem, sans `datetime.now()`. Notez ce qui bloque.
@@ -70,20 +70,21 @@ python -m pytest tests/ -v
 3. **Mise en commun + approfondissement** (10 min) : Consultez [VIOLATION_SRP.md](VIOLATION_SRP.md) — comparez avec ce que vous avez trouvé.
 
 **Phase 2 : Comparaison** (30 min)
-4. **Explorer la solution** (15 min) : Basculez sur `refactored-hexagonal`, lancez les 23 tests, explorez la structure (`src/domain/`, `src/ports/`, `src/adapters/`).
-5. **Comprendre les différences clés** (10 min) : Comparez `borrow_book()` (main) avec `BorrowBookUseCase` (refactored). Pourquoi les tests unitaires deviennent-ils triviaux ?
-6. **Réflexion individuelle** (5 min) : Pourquoi avez-vous été guidés vers une architecture hexagonale dès le début sur votre projet ticketing ? Que se serait-il passé si vous aviez commencé comme ce code ? Et si demain le client voulait une interface web plutôt que CLI — dans quelle version serait-ce plus simple ?
 
-### 🏠 Pour aller plus loin (travail en autonomie)
+1. **Explorer la solution** (15 min) : Basculez sur `refactored-hexagonal`, lancez les 23 tests, explorez la structure (`src/domain/`, `src/ports/`, `src/adapters/`).
+2. **Comprendre les différences clés** (10 min) : Comparez `borrow_book()` (main) avec `BorrowBookUseCase` (refactored). Pourquoi les tests unitaires deviennent-ils triviaux ?
+3. **Réflexion individuelle** (5 min) : Pourquoi avez-vous été guidés vers une architecture hexagonale dès le début sur votre projet ticketing ? Que se serait-il passé si vous aviez commencé comme ce code ? Et si demain le client voulait une interface web plutôt que CLI — dans quelle version serait-ce plus simple ?
 
-Pour refactoriser progressivement ce projet (ou le vôtre) :
+### Pour aller plus loin (travail en autonomie)
+
+Pour refactoriser progressivement ce projet (ou un autre) :
 
 1. **Suivez le guide méthodologique** : [GUIDE_REFACTORING.md](GUIDE_REFACTORING.md) présente une approche progressive en 3 phases (testable → séparé → inversé)
 2. **Utilisez l'IA comme assistant** : Le guide contient des conseils et exemples de prompts pour utiliser efficacement l'IA
 3. **Avancez par petits pas** : Testez en continu, commitez fréquemment
 4. **Soyez patient** : C'est un travail itératif, n'essayez pas de tout faire d'un coup
 
-### 💡 Principes clés à retenir
+### Principes clés à retenir
 
 - **Testabilité = indicateur de qualité architecturale** : Un code difficile à tester est un code mal structuré
 - **SRP** ([Single Responsibility Principle](../architecture-logicielle-BUT2-ressources/cm/annexe_04_principes_SOLID.md#-s---single-responsibility-principle-srp)) : Une responsabilité par classe/méthode
@@ -93,9 +94,9 @@ Pour refactoriser progressivement ce projet (ou le vôtre) :
 
 ---
 
-## 📋 Documents de référence
+## Documents de référence
 
-> ⚠️ **Ne pas consulter avant d'avoir fait votre propre diagnostic** — ces documents contiennent l'analyse complète des problèmes et des pistes de solution.
+> **Ne pas consulter avant d'avoir fait votre propre diagnostic** — ces documents contiennent l'analyse complète des problèmes et des pistes de solution.
 
 - **[VIOLATION_SRP.md](VIOLATION_SRP.md)** : Analyse détaillée de `borrow_book()` — les 9 responsabilités mélangées et leur impact sur la testabilité. À consulter à l'**étape 3** de la Phase 1.
 
