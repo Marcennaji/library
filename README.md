@@ -36,8 +36,6 @@ python -m pytest tests/ -v
 # → 4 tests d'intégration, nécessitent tous SQLite + filesystem
 ```
 
-Ouvrez `services/library_service.py` et regardez la méthode `borrow_book()`. Le reste du diagnostic, c'est votre travail.
-
 ---
 
 ## 🌟 Exemple d'architecture améliorée
@@ -54,25 +52,26 @@ python -m pytest tests/ -v
 - Domain pur (sans dépendances infrastructure)
 - Injection de dépendances
 - Tests rapides avec test doubles (InMemoryRepositories, FixedClock)
+- Interface remplaçable : le CLI est un simple adaptateur — on pourrait brancher une API REST ou une UI web sans toucher au domaine
 - Documentation : ANALYSE_REFACTORING.md, tests/README.md
 
 **Structure refactorisée** : `src/domain/`, `src/ports/`, `src/application/usecases/`, `src/adapters/`
 
 ---
 
-## � Démarche proposée
+## 📋 Démarche à suivre
 
 ### ⏱️ Pendant la séance (1h)
 
-**Phase 1 : Diagnostic** (40 min)
-1. **Expérimentation** (15 min) : Tentez d'écrire un test unitaire pour `borrow_book()` — sans DB réelle, sans filesystem, sans `datetime.now()`. Notez ce qui bloque.
-2. **Analyse du code** (15 min) : Lisez `services/library_service.py`. Listez toutes les responsabilités que vous identifiez dans `borrow_book()`.
-3. **Approfondissement** (10 min) : Consultez [VIOLATION_SRP.md](VIOLATION_SRP.md) — comparez avec ce que vous avez trouvé.
+**Phase 1 : Diagnostic** (30 min)
+1. **Expérimentation** (10 min) : Tentez d'écrire un test unitaire pour `borrow_book()` — sans DB réelle, sans filesystem, sans `datetime.now()`. Notez ce qui bloque.
+2. **Analyse du code** (10 min) : Lisez `services/library_service.py`. Listez toutes les responsabilités que vous identifiez dans `borrow_book()`.
+3. **Mise en commun + approfondissement** (10 min) : Consultez [VIOLATION_SRP.md](VIOLATION_SRP.md) — comparez avec ce que vous avez trouvé.
 
-**Phase 2 : Comparaison** (20 min)
-4. **Explorer une solution possible** (20 min) : Basculez sur `refactored-hexagonal`, lancez les 23 tests, comprenez la structure (domain/, ports/, adapters/), comparez avec main.
-
-**💭 Réflexion individuelle** : Pourquoi avez-vous été guidés vers une architecture hexagonale dès le début sur votre projet ticketing ? Que se serait-il passé si vous aviez commencé comme ce code ?
+**Phase 2 : Comparaison** (30 min)
+4. **Explorer la solution** (15 min) : Basculez sur `refactored-hexagonal`, lancez les 23 tests, explorez la structure (`src/domain/`, `src/ports/`, `src/adapters/`).
+5. **Comprendre les différences clés** (10 min) : Comparez `borrow_book()` (main) avec `BorrowBookUseCase` (refactored). Pourquoi les tests unitaires deviennent-ils triviaux ?
+6. **Réflexion individuelle** (5 min) : Pourquoi avez-vous été guidés vers une architecture hexagonale dès le début sur votre projet ticketing ? Que se serait-il passé si vous aviez commencé comme ce code ? Et si demain le client voulait une interface web plutôt que CLI — dans quelle version serait-ce plus simple ?
 
 ### 🏠 Pour aller plus loin (travail en autonomie)
 
