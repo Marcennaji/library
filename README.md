@@ -16,6 +16,7 @@ Application CLI de gestion de bibliothèque (emprunts de livres) qui **fonctionn
 # Cloner et installer
 git clone https://github.com/Marcennaji/library.git
 cd library
+pip install -r requirements.txt
 
 # Lancer les tests
 python -m pytest tests/ -v
