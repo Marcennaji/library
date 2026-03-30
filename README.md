@@ -1,12 +1,12 @@
-# 📚 Library Management System - Exercice de Refactoring
+# 📚 Library Management System - Exercice de Diagnostic Architectural
 
-> 🔧 **Du code problématique à l'architecture maintenable : exercice de refactoring progressif**
+> 🔍 **Un code qui fonctionne… mais qui cache de vrais problèmes : sauras-tu les identifier ?**
 
 ## 🎯 Objectif
 
-Application CLI de gestion de bibliothèque (emprunts de livres) qui **fonctionne** mais présente des **problèmes architecturaux**.
+Application CLI de gestion de bibliothèque (emprunts de livres) qui **fonctionne** mais présente des **problèmes architecturaux majeurs**.
 
-**Mission** : Diagnostiquer les problèmes, comprendre leur impact sur la testabilité, et apprendre à refactoriser progressivement.
+**Mission** : Diagnostiquer ces problèmes, comprendre leur impact concret sur la testabilité, et découvrir à quoi ressemble une architecture mieux structurée.
 
 ---
 
@@ -29,58 +29,14 @@ python main.py
 
 ---
 
-## 🔍 Analyse des problèmes
-
-### 📋 Documents d'analyse
-
-- **[VIOLATION_SRP.md](VIOLATION_SRP.md)** : Analyse d'un des problèmes majeurs - la méthode `borrow_book()` contient 9 responsabilités mélangées → impossible à tester unitairement
-
-- **[GUIDE_REFACTORING.md](GUIDE_REFACTORING.md)** : Méthode de refactoring progressif pour corriger ces problèmes (priorisation, petites étapes, tests continus)
-
-### 🧪 Tests actuels
+## 🔍 Aperçu du code
 
 ```bash
 python -m pytest tests/ -v
 # → 4 tests d'intégration, nécessitent tous SQLite + filesystem
 ```
 
-<details>
-<summary><b>❓ Pourquoi seulement 4 tests ?</b></summary>
-
-Avec cette architecture, il est très difficile d'écrire plus de tests. Chaque test nécessite :
-- Une vraie base de données SQLite
-- Le système de fichiers (pour les logs/)
-- La gestion des dates système
-- La capture de `print()` avec `capsys`
-
-**Conséquence** : Les tests sont lents (~500ms pour 4 tests), complexes à écrire, et testent tout en même temps (logique métier + infrastructure).
-
-**Comparaison** : La branche `refactored-hexagonal` contient 23 tests dont 21 unitaires qui s'exécutent en <2s au total.
-</details>
-
-<details>
-<summary><b>❓ Pourquoi impossible de tester sans DB ?</b></summary>
-
-Les entités (`Book`, `Member`, `Loan`) contiennent des méthodes `.save()` qui font des requêtes SQL directes. Le service `LibraryService` utilise `get_connection()` qui retourne toujours une connexion vers `library.db`.
-
-**Conséquence** : Impossible de tester la logique métier isolément - chaque test doit créer/nettoyer une vraie base de données.
-
-**Solution** : Séparer les entités (domaine pur) des repositories (persistance), puis injecter les repositories.
-</details>
-
-<details>
-<summary><b>❓ Que se passe-t-il si on veut tester juste la logique métier ?</b></summary>
-
-C'est impossible actuellement. La logique métier est mélangée avec :
-- Base de données (SQL)
-- Système de fichiers (logs/)
-- Date système (`datetime.now()`)
-- Affichage console (`print()`)
-
-Pour tester un comportement métier simple (ex: "un livre emprunté n'est plus disponible"), il faut gérer toutes ces dépendances.
-
-**Résultat** : Tests lents, fragiles (dépendent de l'état du filesystem/DB), difficiles à maintenir.
-</details>
+Ouvrez `services/library_service.py` et regardez la méthode `borrow_book()`. Le reste du diagnostic, c'est votre travail.
 
 ---
 
@@ -106,15 +62,15 @@ python -m pytest tests/ -v
 
 ## � Démarche proposée
 
-### ⏱️ Pendant la séance (50 min)
+### ⏱️ Pendant la séance (1h)
 
-**Phase 1 : Diagnostic** (30 min)
-1. **Expérimentation** (15 min) : Tentez d'écrire un test unitaire pour `borrow_book()` → constatez la difficulté
-2. **Analyse du code** (10 min) : Lisez `services/library_service.py` et identifiez les problèmes
-3. **Approfondissement** (5 min) : Consultez [VIOLATION_SRP.md](VIOLATION_SRP.md) pour l'analyse détaillée des 9 responsabilités mélangées
+**Phase 1 : Diagnostic** (40 min)
+1. **Expérimentation** (15 min) : Tentez d'écrire un test unitaire pour `borrow_book()` — sans DB réelle, sans filesystem, sans `datetime.now()`. Notez ce qui bloque.
+2. **Analyse du code** (15 min) : Lisez `services/library_service.py`. Listez toutes les responsabilités que vous identifiez dans `borrow_book()`.
+3. **Approfondissement** (10 min) : Consultez [VIOLATION_SRP.md](VIOLATION_SRP.md) — comparez avec ce que vous avez trouvé.
 
 **Phase 2 : Comparaison** (20 min)
-4. **Explorer une solution possible** (20 min) : Basculez sur `refactored-hexagonal`, lancez les 23 tests, comprenez la structure (domain/, ports/, adapters/), comparez avec main
+4. **Explorer une solution possible** (20 min) : Basculez sur `refactored-hexagonal`, lancez les 23 tests, comprenez la structure (domain/, ports/, adapters/), comparez avec main.
 
 **💭 Réflexion individuelle** : Pourquoi avez-vous été guidés vers une architecture hexagonale dès le début sur votre projet ticketing ? Que se serait-il passé si vous aviez commencé comme ce code ?
 
@@ -134,5 +90,15 @@ Pour refactoriser progressivement ce projet (ou le vôtre) :
 - **Refactoring progressif** : Petits pas + tests + commits fréquents
 - **Architecture hexagonale** : Isoler le domaine métier des détails techniques
 - **L'IA comme outil** : Puissant pour accélérer, mais nécessite compréhension et validation
+
+---
+
+## 📋 Documents de référence
+
+> ⚠️ **Ne pas consulter avant d'avoir fait votre propre diagnostic** — ces documents contiennent l'analyse complète des problèmes et des pistes de solution.
+
+- **[VIOLATION_SRP.md](VIOLATION_SRP.md)** : Analyse détaillée de `borrow_book()` — les 9 responsabilités mélangées et leur impact sur la testabilité. À consulter à l'**étape 3** de la Phase 1.
+
+- **[GUIDE_REFACTORING.md](GUIDE_REFACTORING.md)** : Méthode de refactoring progressif en 3 phases (testable → séparé → inversé), avec conseils d'utilisation de l'IA. À consulter pour le **travail en autonomie**.
 
 ---
