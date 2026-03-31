@@ -87,7 +87,7 @@ Pour refactoriser progressivement ce projet (ou un autre) :
 ### Principes clés à retenir
 
 - **Testabilité = indicateur de qualité architecturale** : Un code difficile à tester est un code mal structuré
-- **SRP** ([Single Responsibility Principle](../architecture-logicielle-BUT2-ressources/cm/annexe_04_principes_SOLID.md#-s---single-responsibility-principle-srp)) : Une responsabilité par classe/méthode
+- **Single Responsibility Principle (SRP)** : Une responsabilité par classe/méthode
 - **Refactoring progressif** : Petits pas + tests + commits fréquents
 - **Architecture hexagonale** : Isoler le domaine métier des détails techniques
 - **L'IA comme outil** : Puissant pour accélérer, mais nécessite compréhension et validation
